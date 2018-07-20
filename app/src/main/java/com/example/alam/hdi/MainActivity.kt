@@ -15,8 +15,10 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
@@ -34,9 +36,6 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 
 open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener  {
 
-
-    private var mLatitudeTextView: TextView? = null
-    private var mLongitudeTextView: TextView? = null
     private var mGoogleApiClient: GoogleApiClient? = null
     private var mLocation: Location? = null
     private var mLocationManager: LocationManager? = null
@@ -183,8 +182,8 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            R.id.nav_camera -> {
-                // Handle the camera action
+            R.id.nav_poliza -> {
+
             }
 
             R.id.nav_slideshow -> {

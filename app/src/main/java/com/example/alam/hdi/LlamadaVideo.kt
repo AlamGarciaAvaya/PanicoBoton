@@ -41,7 +41,9 @@ class LlamadaVideo : AppCompatActivity(), UserListener2, SessionListener2 {
         setVisibility(findViewById(R.id.btnEnableVideo), visibility)
         setVisibility(findViewById(R.id.mute_video), visibility)
         setVisibility(findViewById(R.id.btnSwitchVideo), visibility)
-        setVisibility(findViewById(R.id.end_call), visibility)
+        setVisibility(findViewById(R.id.call_quality), visibility)
+        setVisibility(findViewById(R.id.call_quality_bar), visibility)
+
     }
     private fun setVisibility(button: View, visibility: Int) {
         when (visibility) {
