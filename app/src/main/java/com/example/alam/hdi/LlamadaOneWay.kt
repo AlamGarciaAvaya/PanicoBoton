@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.RelativeLayout
 import android.widget.Toast
 import com.avaya.clientplatform.api.*
@@ -21,13 +22,41 @@ import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_llamada_video.*
 import android.widget.TextView
 import android.widget.ProgressBar
-class LlamadaOneWay : AppCompatActivity(), UserListener2, SessionListener2 {
+import java.security.cert.X509Certificate
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLSession
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
+
+class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, UserListener2, SessionListener2 {
+    //Override Certificados
+    override fun verify(hostname: String, session: SSLSession): Boolean {
+        Log.d("Certs", "Null Host")
+        return true
+    }
+
+    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+        Log.d("Certs", "Certificados Aceptados 3")
+    }
+
+    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+        Log.d("Certs", "Certificados Aceptados 2")
+    }
+
+    override fun getAcceptedIssuers(): Array<X509Certificate>? {
+        Log.d("Certs", "Certificados Aceptados")
+        return null
+    }
+
+
 
     var tag1 = "API"
     override fun onCreate(savedInstanceState: Bundle?) {
         volumeControlStream = AudioManager.STREAM_VOICE_CALL
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_llamada_video)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
 
     }
     private fun escondercontroles() {
@@ -41,7 +70,10 @@ class LlamadaOneWay : AppCompatActivity(), UserListener2, SessionListener2 {
         setVisibility(findViewById(R.id.btnEnableVideo), visibility)
         setVisibility(findViewById(R.id.mute_video), visibility)
         setVisibility(findViewById(R.id.btnSwitchVideo), visibility)
-        setVisibility(findViewById(R.id.end_call), visibility)
+        // setVisibility(findViewById(R.id.end_call), visibility)
+        setVisibility(findViewById(R.id.call_quality_bar), visibility)
+        setVisibility(findViewById(R.id.textView7), visibility)
+        setVisibility(findViewById(R.id.call_quality), visibility)
     }
     private fun setVisibility(button: View, visibility: Int) {
         when (visibility) {
@@ -154,19 +186,19 @@ class LlamadaOneWay : AppCompatActivity(), UserListener2, SessionListener2 {
                             Log.d("SDK", numero)
                             mSession.remoteAddress = numero
                             mostrarcontroles()
-                            mSession.contextId = "Lat:$gpslat Long:$gpslong"
+                            mSession.contextId = "Lat $gpslat Long$gpslong"
                             mSession.start()
 
 
                             //Funcion de Switch Video
-                                btnSwitchVideo.setOnClickListener {
+                            btnSwitchVideo.setOnClickListener {
                                 try {
                                     var camaras = mDevice.selectedCamera
                                     when (camaras.toString()){
                                         "FRONT" -> mDevice.selectCamera(CameraType.BACK)
                                         "BACK" ->   mDevice.selectCamera(CameraType.FRONT)
                                     }
-                                 } catch (e: Exception) {
+                                } catch (e: Exception) {
                                     Log.d("SDK", "Fallo al cambiar de camara")
                                 }
                             }

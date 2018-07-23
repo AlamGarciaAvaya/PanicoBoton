@@ -22,10 +22,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import com.avaya.clientplatform.api.SessionListener2
+import com.github.kittinunf.fuel.core.FuelManager
+import com.github.kittinunf.fuel.core.Method
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.gson.Gson
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -272,4 +275,13 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
         intent.putExtra("gpslong", mLocation?.longitude.toString())
         startActivity(intent)
     }
+}
+
+//Clases
+class Login {
+    data class Response(
+            val sessionid: String,
+            val uuid: String,
+            val defaultDomain: String
+    )
 }
