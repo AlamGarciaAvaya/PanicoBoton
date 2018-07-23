@@ -21,6 +21,7 @@ import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import com.avaya.clientplatform.api.SessionListener2
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
@@ -33,8 +34,33 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import java.security.cert.X509Certificate
+import javax.net.ssl.*
 
-open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener  {
+open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManager, NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener  {
+    override fun verify(hostname: String, session: SSLSession): Boolean {
+        Log.d("Certs", "Null Host")
+
+
+        return true
+    }
+
+    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+        Log.d("Certs", "Certificados Aceptados 3")
+
+
+    }
+
+    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+        Log.d("Certs", "Certificados Aceptados 2")
+
+    }
+
+    override fun getAcceptedIssuers(): Array<X509Certificate>? {
+        Log.d("Certs", "Certificados Aceptados")
+
+        return null
+    }
 
     private var mGoogleApiClient: GoogleApiClient? = null
     private var mLocation: Location? = null
@@ -44,6 +70,8 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     private val listener: com.google.android.gms.location.LocationListener? = null
     private val UPDATE_INTERVAL = (2 * 1000).toLong()
     private val FASTEST_INTERVAL: Long = 2000
+
+
 
 
     //Listeners GPS
@@ -69,6 +97,7 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
 
 
+
     override fun onConnectionSuspended(i: Int) {
         Log.d("GPS", "GPS Suspendido")
         mGoogleApiClient!!.connect()
@@ -86,6 +115,9 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     }
     //Fin Listeners
+
+
+
 
     @SuppressLint("MissingPermission")
     fun actualizargps() {
