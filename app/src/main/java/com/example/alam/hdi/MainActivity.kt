@@ -2,33 +2,28 @@ package com.example.alam.hdi
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.view.ViewGroup
-import android.widget.TextView
+
 import android.widget.Toast
-import com.avaya.clientplatform.api.SessionListener2
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.Method
+
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.gson.Gson
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -38,30 +33,27 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import java.security.cert.X509Certificate
-import javax.net.ssl.*
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLSession
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManager, NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener  {
     override fun verify(hostname: String, session: SSLSession): Boolean {
         Log.d("Certs", "Null Host")
-
-
         return true
     }
 
     override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
         Log.d("Certs", "Certificados Aceptados 3")
-
-
     }
 
     override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
         Log.d("Certs", "Certificados Aceptados 2")
-
     }
 
     override fun getAcceptedIssuers(): Array<X509Certificate>? {
         Log.d("Certs", "Certificados Aceptados")
-
         return null
     }
 
@@ -79,6 +71,7 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
 
     //Listeners GPS
     override fun onConnected(p0: Bundle?) {
+
         when {
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED -> return
             else -> {
@@ -97,8 +90,6 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
         }
 
     }
-
-
 
 
     override fun onConnectionSuspended(i: Int) {
@@ -275,6 +266,7 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
         intent.putExtra("gpslong", mLocation?.longitude.toString())
         startActivity(intent)
     }
+
 }
 
 //Clases
@@ -285,3 +277,4 @@ class Login {
             val defaultDomain: String
     )
 }
+

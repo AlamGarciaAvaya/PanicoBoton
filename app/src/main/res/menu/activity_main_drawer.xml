@@ -24,14 +24,7 @@
                 android:id="@+id/dualvideo_menu"
                 android:icon="@drawable/imageedit_1_7741237077"
                 android:title="Dual Video" />
-            <item
-                android:id="@+id/oneway_menu"
-                android:icon="@drawable/imageedit_2_2835506998"
-                android:title="OneWay Video" />
-            <item
-                android:id="@+id/audio_only"
-                android:icon="@drawable/call"
-                android:title="Audio" />
+
         </menu>
     </item>
 
