@@ -196,7 +196,7 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
                             Log.d("SDK", numero)
                             mSession!!.remoteAddress = numero
                             mostrarcontroles()
-                            mSession!!.contextId = "Lat $gpslat Long$gpslong"
+                            mSession!!.contextId = "$gpslat,$gpslong"
                             mSession!!.start()
 
 
