@@ -19,11 +19,16 @@ import android.view.Menu
 import android.view.MenuItem
 
 import android.widget.Toast
+import com.avaya.clientplatform.api.ClientPlatform
+import com.avaya.clientplatform.api.ClientPlatformFactory
+import com.github.kittinunf.fuel.core.FuelManager
+import com.github.kittinunf.fuel.core.Method
 
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.gson.Gson
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -65,8 +70,6 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
     private val listener: com.google.android.gms.location.LocationListener? = null
     private val UPDATE_INTERVAL = (2 * 1000).toLong()
     private val FASTEST_INTERVAL: Long = 2000
-
-
 
 
     //Listeners GPS
@@ -131,6 +134,7 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
 
     override fun onStart() {
         super.onStart()
+        obtenertoken()
         when {
             mGoogleApiClient != null -> mGoogleApiClient!!.connect()
 
@@ -242,7 +246,6 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
     }
 
     fun i_llamadavideo() {
-        actualizargps()
         val intent = Intent(this, LlamadaVideo::class.java)
         // Pasar Valores entre Actividades
         intent.putExtra("gpslat", mLocation?.latitude.toString())
@@ -251,15 +254,14 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
     }
 
     fun i_onewayvideo() {
-        actualizargps()
         val intent = Intent(this, LlamadaOneWay::class.java)
         // Pasar Valores entre Actividades
         intent.putExtra("gpslat", mLocation?.latitude.toString())
         intent.putExtra("gpslong", mLocation?.longitude.toString())
         startActivity(intent)
+
     }
     fun i_llamadaaudio() {
-        actualizargps()
         val intent = Intent(this, LlamadaAudio::class.java)
         // Pasar Valores entre Actividades
         intent.putExtra("gpslat", mLocation?.latitude.toString())
@@ -267,7 +269,54 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
         startActivity(intent)
     }
 
+    fun obtenertoken() {
+        var myPreferences = "myPrefs"
+        var sharedPreferences = getSharedPreferences(myPreferences, Context.MODE_PRIVATE)
+        var displayname = sharedPreferences.getString("displayname", "John Doe")
+        var username = sharedPreferences.getString("username", "1234")
+        var host = sharedPreferences.getString("host", "amv.collaboratory.avaya.com")
+        var puerto = sharedPreferences.getString("puerto", "443")
+
+        //Definimos las variables de URL que tendra nuestra peticion con sus respectivas llaves
+        //Key
+        var paramKey1 = "displayName"
+        //Parametro-Variable
+        var paramValue1 = displayname
+        //Key
+        var paramKey2 = "userName"
+        //Parametro Variable
+        var paramValue2 = username
+        //Invocamos FUEL Manager y lo asignamos a una variable para tener un mejor acceso a el
+        val manager: FuelManager by lazy { FuelManager() }
+        //Usamos el metodo request de FUUEL Manager, junto a la lusta de parametros
+        manager.request(Method.GET, "https://$host:$puerto/avayatest/auth?", listOf(paramKey1 to paramValue1, paramKey2 to paramValue2)).responseString { req, res, result ->
+            val (data, error) = result
+            //Si no tenemos ningun error, procedemos a hacer la llamada, ya que el servidor respondio con un 200 y tendremos el Token de LLamada
+            when (error) {
+                null -> {
+                    //Imprimimos el Response en el LogCat solo para asegurar que se hizo bien la peticion
+                    Log.d("RESPONSES", data)
+                    // creamos una variable llamada gson para la Funcion GSON() para que sea mas accesible
+                    var gson = Gson()
+                    //Asignamos a la variable Login el metodo gson?.fromJson(data, Login.Response::class.java) y le pasamos el response JSON para su conversion a un objeto que Android puede manejar
+                    var Login = gson?.fromJson(data, LlamadaVideo.Login.Response::class.java)
+                    val myPreferences = "myPrefs"
+                    val sharedPreferences = getSharedPreferences(myPreferences, Context.MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    editor.putString("sessionid", Login.sessionid)
+                    editor.putString("token", data)
+                    editor.apply()
+                }
+            }
+        }
+    }
+
+
 }
+
+
+
+
 
 //Clases
 class Login {
@@ -277,4 +326,24 @@ class Login {
             val defaultDomain: String
     )
 }
+
+
+object ClientPlatformManager {
+
+    var sClientPlatform: ClientPlatform? = null
+
+    @Synchronized
+    fun getClientPlatform(context: Context): ClientPlatform? {
+
+        if (sClientPlatform != null) {
+            return sClientPlatform
+        }
+
+        sClientPlatform = ClientPlatformFactory.getClientPlatformInterface(context)
+
+        return sClientPlatform
+    }
+
+}
+
 
