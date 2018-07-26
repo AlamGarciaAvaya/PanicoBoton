@@ -1,5 +1,4 @@
 package com.example.alam.hdi
-
 import android.app.Activity
 import android.content.Context
 import android.graphics.Point
@@ -25,56 +24,59 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 import com.avaya.clientplatform.impl.VideoSurfaceImpl
 import com.avaya.clientplatform.api.ClientPlatform
-
 class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, UserListener2, SessionListener2 {
-    //Asignamos las superficies de video
-
+    //Asignamos las variables globales
     var mPlatform: ClientPlatform? = null
     var mUser: UserImpl? = null
     var mDevice: DeviceImpl? = null
     var mSession: SessionImpl? = null
     var mRemoteVideoSurface: VideoSurface? = null
     var mPreviewView: VideoSurface? = null
-
-
-    //Override Certificados
+    //Override Certificados (Fix Android 5.0 del TrustManager y NullHost)
+    //NullHost Verify
     override fun verify(hostname: String, session: SSLSession): Boolean {
         Log.d("Certs", "Null Host")
         return true
     }
 
+    //TrustManager
     override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
         Log.d("Certs", "Certificados Aceptados 3")
     }
+    //TrustManager
 
     override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
         Log.d("Certs", "Certificados Aceptados 2")
     }
 
+    //TrustManager
     override fun getAcceptedIssuers(): Array<X509Certificate>? {
         Log.d("Certs", "Certificados Aceptados")
         return null
     }
 
-
-
-    var tag1 = "API"
+    //Creacion Aplicacion
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //Layout
         setContentView(R.layout.activity_llamada_video)
+        //Opcion para evitar que la pantalla s eapague durante la llamada
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        //Escondemos los botones
         escondercontroles()
+        //Iniciamos audioManager de Android
         volumeControlStream = AudioManager.STREAM_VOICE_CALL
-        //Boton Colgar
+        //Listener Boton Colgar
         end_call.setOnClickListener {
             colgar()
             finish()
-
-
         }
         //
 
     }
+
+
+    //funcion para esconcer botones
     private fun escondercontroles() {
         setButtonsVisibility(View.INVISIBLE)
     }
@@ -91,79 +93,91 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
         setVisibility(findViewById(R.id.textView7), visibility)
         setVisibility(findViewById(R.id.call_quality), visibility)
     }
+
     private fun setVisibility(button: View, visibility: Int) {
         when (visibility) {
             View.VISIBLE, View.INVISIBLE -> button.visibility = visibility
         }
     }
+    //FIN
+    //Como cambiamos de Actividad, al hacer focus en esta vista vamos a crear el vídeo
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         crearvideo()
     }
+    //Creamos Video
 
     fun crearvideo() {
         try {
-            if (mRemoteVideoSurface == null) {
+            when (mRemoteVideoSurface) {
+                null -> {
+                    //Mostramos el video si nuestra superficie de video es nula
+                    mostrarcontroles()
+                    //Asignamos el Cliente a un objeto
+                    var clientPlatform = ClientPlatformManager.getClientPlatform(this)
+                    //Definimos las superficies de render de video
+                    var rlRemote = findViewById<View>(R.id.remoteLayout) as RelativeLayout
+                    var rlLocal = findViewById<View>(R.id.localLayout) as RelativeLayout
+                    //Asignamos el objeto dispositivo
+                    var mDevice = clientPlatform!!.device as DeviceImpl?
+                    //Obtenemos el tamaño de las superficioes
+                    val remoteSize = Point(rlRemote.width, rlRemote.height)
+                    val localSize = Point(rlLocal.width, rlLocal.height)
+                    //Creamos los objetos con el metodo VideoSurfacImpl.
+                    var mRemoteVideoSurface = VideoSurfaceImpl(this, remoteSize, null)
+                    var mPreviewView = VideoSurfaceImpl(this, localSize, null)
+                    //Agregamos las vistas a nuestros Layouts
+                    (mRemoteVideoSurface).layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)
+                    rlRemote.addView(mRemoteVideoSurface)
 
-                mostrarcontroles()
-
-                var clientPlatform = ClientPlatformManager.getClientPlatform(this)
-
-                var rlRemote = findViewById<View>(R.id.remoteLayout) as RelativeLayout
-                var rlLocal = findViewById<View>(R.id.localLayout) as RelativeLayout
-
-                mDevice = clientPlatform!!.device as DeviceImpl?
-                val remoteSize = Point(rlRemote.width, rlRemote.height)
-                val localSize = Point(rlLocal.width, rlLocal.height)
-
-                mRemoteVideoSurface = VideoSurfaceImpl(this, remoteSize, null)
-                mPreviewView = VideoSurfaceImpl(this, localSize, null)
-
-                (mRemoteVideoSurface as VideoSurfaceImpl).layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)
-                rlRemote.addView(mRemoteVideoSurface)
-
-                (mPreviewView as VideoSurfaceImpl).layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)
-                rlLocal.addView(mPreviewView)
-
-                mDevice!!.localVideoView = mPreviewView
-                mDevice!!.remoteVideoView = mRemoteVideoSurface
+                    (mPreviewView).layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)
+                    rlLocal.addView(mPreviewView)
+                    //Le indicamos al SDK a que objeot debe mandar el vídeo
+                    mDevice!!.localVideoView = mPreviewView
+                    mDevice!!.remoteVideoView = mRemoteVideoSurface
+                }
             }
+            //Excepecion
         } catch (e: Exception) {
             Log.d("SDK", "Error al crear video")
         }
 
     }
 
-
-    private fun call() {
+    private fun llamada() {
         try {
+            //Abrimos el Preference Manager
             var myPreferences = "myPrefs"
             var sharedPreferences = getSharedPreferences(myPreferences, Context.MODE_PRIVATE)
+            //Obtenemos el numero del PreferenceManager
             var numero = sharedPreferences.getString("numero", "2681322102")
+            //Obtenemos los extras de la actividad anterior para la localizacion
             val intent = intent
             val gpslat = intent.getStringExtra("gpslat")
             val gpslong = intent.getStringExtra("gpslong")
-            mDevice = mPlatform!!.device as DeviceImpl?
-
-            var clientPlatform = ClientPlatformManager.getClientPlatform(this.applicationContext)
-
-            val browser = clientPlatform!!.userAgentBrowser
-            val version = clientPlatform!!.userAgentVersion
-
-            var mSession = mUser!!.createSession() as SessionImpl
+            //Imprimimos las ultimas coordenadas obtenidas
             Log.d("SDK", "Localizacion: $gpslat,$gpslong")
-
+            //Creamos un objeto con la Interface device del SDK
+            var mDevice = mPlatform!!.device as DeviceImpl?
+            //Creamos un objeto con la Interface ususario del SDK para crear la seison
+            var mSession = mUser!!.createSession() as SessionImpl
+            //Inicializamos los Listeners de la sesión
             mSession.registerListener(this)
-
+            //Preferencias de la llamada
             mSession.enableAudio(true)
             mSession.enableVideo(true)
             mSession.muteAudio(false)
-            mSession.muteVideo(false)
+            mSession.muteVideo(true)
+            //Asignamos el UserToUser to Info
             mSession.contextId = "$gpslat,$gpslong"
-
+            //Asiganmos el numero
             mSession.remoteAddress = numero
+            //Iniciamos la llamada
             mSession.start()
+
+
+            //Listener para cuando la llamada ha iniciado
             end_call.setOnClickListener {
                 mDevice!!.localVideoView = null
                 mDevice!!.remoteVideoView = null
@@ -171,8 +185,6 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
                 mUser!!.unregisterListener(this)
                 mSession!!.end()
                 finish()
-
-
             }
             //Funcion de Switch Video
             btnSwitchVideo.setOnClickListener {
@@ -226,16 +238,15 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
                 }
             }
             //Fin Drop
-
-
+            //Catch del error de la llamada
         } catch (e: Exception) {
-            toast("Error" + e)
-            Log.d("SDK", "error" + e)
+            toast("Error en la llamada$e")
+            Log.d("SDK", "error$e")
             finish()
         }
-
     }
 
+    //Eliminar Token
     fun eliminartoken() {
         var myPreferences = "myPrefs"
         var sharedPreferences = getSharedPreferences(myPreferences, Context.MODE_PRIVATE)
@@ -258,34 +269,36 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
         }
     }
 
-
+    //Funcion de Colgar
     fun colgar() {
         Log.d("SDK", "Colgar")
         try {
-            if (mSession != null) {
-                mDevice!!.localVideoView = null
-                mDevice!!.remoteVideoView = null
-                mSession!!.unregisterListener(this)
-                mUser!!.unregisterListener(this)
-                mSession!!.end()
+            when {
+            //Si tenemos un objeto en la sesion, limpiamos variables y detenemos listeners
+                mSession != null -> {
+                    mDevice!!.localVideoView = null
+                    mDevice!!.remoteVideoView = null
+                    mSession!!.unregisterListener(this)
+                    mUser!!.unregisterListener(this)
+                    mSession!!.end()
 
+                }
             }
+            //Matamos Procesos
             finish()
+            //Catch del Try
         } catch (e: Exception) {
             Log.d("SDK", "Error al colgar$e")
             toast("Error al Colgar$e")
         }
-
-
     }
 
-    //Toast
+    //Snippet para llamar al toast mas rápido
     fun Activity.toast(message: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
         runOnUiThread { Toast.makeText(this, message, duration).show() }
     }
 
-
-    //Clases
+    //Clases para el código
     class Login {
         data class Response(
                 val sessionid: String,
@@ -297,8 +310,6 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
 
     override fun onRestart() {
         Log.d("API", "Recreando onResume")
-
-
         super.onRestart()
 
     }
@@ -369,8 +380,6 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
         } catch (e: Exception) {
             Log.d("SDK", "Error Calidad$e")
         }
-
-
     }
 
     override fun onSessionEstablished(session: Session) {
@@ -417,15 +426,11 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
 
     override fun onConnRetry(user: User) {
         toast("Reintentando conectar")
-
     }
-
     override fun onConnectionInProgress(arg0: User) {
         Log.d("SDK", "Conexion en Progreso")
     }
-
     override fun onConnLost(user: User) {
-
         toast("Se ha perdido conexion con el servidor, intente remarcar")
         colgar()
     }
@@ -444,7 +449,6 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
     override fun onCriticalError(p0: User?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
     override fun onDestroy() {
         super.onDestroy()
         mPlatform = null
@@ -458,51 +462,58 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
         mPreviewView = null
     }
 
+
+    override fun onBackPressed() {
+        //nada
+        //super.onBackPressed()
+    }
+
+
     override fun onResume() {
+
         super.onResume()
+        //Abrimos el Preference Manager
         var myPreferences = "myPrefs"
         var sharedPreferences = getSharedPreferences(myPreferences, Context.MODE_PRIVATE)
+        //Obtenemos el Token
         var token = sharedPreferences.getString("token", "")
-
         try {
-
+            //Creamos objetos con las interfaces
             mPlatform = ClientPlatformManager.getClientPlatform(this.applicationContext)
+            //Creamos Objeto con la interface Ususario
             mUser = mPlatform!!.user as UserImpl?
-
             Log.d("SDK", token)
-
+            //Asignamos el Token al Usuario para crear la sesion
             val tokenAccepted = mUser!!.setSessionAuthorizationToken(token)
-            mSession = null
-            if (tokenAccepted) {
-                mUser!!.registerListener(this)
-                mUser!!.acceptAnyCertificate(true)
-                mPlatform!!.getDevice() as DeviceImpl
-                Log.d("SDK", mPlatform!!.getDevice().toString())
-                if (mSession == null) {
-                    if (mUser!!.isServiceAvailable()) {
-                        Log.d("SDK", "Llamar")
-
-                        call()
-
-                    } else {
-                        Log.d("SDK", "Servicio No disponible")
-                        colgar()
+            when {
+            //Si el token es acpetado
+                tokenAccepted -> {
+                    //registramos el Listener
+                    mUser!!.registerListener(this)
+                    //El SDK aceptará cualquier certificado
+                    mUser!!.acceptAnyCertificate(true)
+                    // asignamos al objeto mPlataform la interfaz device
+                    mPlatform!!.device as DeviceImpl
+                    Log.d("SDK", mPlatform!!.getDevice().toString())
+                    when (mSession) {
+                        null -> //Si no tenemos session podemos llamar
+                            when {
+                                mUser!!.isServiceAvailable -> {
+                                    Log.d("SDK", "Llamar")
+                                    llamada()
+                                }
+                                else -> {
+                                    Log.d("SDK", "Servicio No disponible")
+                                    colgar()
+                                }
+                            }
+                        else -> Log.d("SDK", "no se puede llamar")
                     }
-                } else {
-                    Log.d("SDK", "no se puede llamar")
-
-
                 }
-            } else {
-                Log.d("SDK", "Token Invalida")
-
+                else -> Log.d("SDK", "Token Invalida")
             }
         } catch (e: Exception) {
             Log.d("SDK", "Error al resumir $e")
         }
-
     }
-
 }
-
-
