@@ -152,6 +152,8 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
             val version = clientPlatform!!.userAgentVersion
 
             var mSession = mUser!!.createSession() as SessionImpl
+            Log.d("SDK", "Localizacion: $gpslat,$gpslong")
+
             mSession.registerListener(this)
 
             mSession.enableAudio(true)

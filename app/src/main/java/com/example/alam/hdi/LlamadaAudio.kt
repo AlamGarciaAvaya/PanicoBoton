@@ -152,14 +152,13 @@ class LlamadaAudio : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
             val version = clientPlatform!!.userAgentVersion
 
             var mSession = mUser!!.createSession() as SessionImpl
+            Log.d("SDK", "Localizacion: $gpslat,$gpslong")
             mSession.registerListener(this)
-
             mSession.enableAudio(true)
             mSession.enableVideo(true)
             mSession.muteAudio(false)
             mSession.muteVideo(false)
             mSession.contextId = "$gpslat,$gpslong"
-
             mSession.remoteAddress = numero
             mSession.start()
             end_call.setOnClickListener {

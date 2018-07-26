@@ -140,12 +140,15 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
 
     private fun call() {
         try {
+
             var myPreferences = "myPrefs"
             var sharedPreferences = getSharedPreferences(myPreferences, Context.MODE_PRIVATE)
             var numero = sharedPreferences.getString("numero", "2681322102")
             val intent = intent
             val gpslat = intent.getStringExtra("gpslat")
             val gpslong = intent.getStringExtra("gpslong")
+            Log.d("SDK", "Localizacion: $gpslat,$gpslong")
+
             mDevice = mPlatform!!.device as DeviceImpl?
 
             var clientPlatform = ClientPlatformManager.getClientPlatform(this.applicationContext)
