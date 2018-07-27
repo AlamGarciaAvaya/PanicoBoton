@@ -20,7 +20,6 @@ import com.avaya.clientplatform.impl.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
-import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 import com.avaya.clientplatform.impl.VideoSurfaceImpl
 import com.avaya.clientplatform.api.ClientPlatform
