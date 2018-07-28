@@ -20,7 +20,6 @@ import com.avaya.clientplatform.impl.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
-import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 import com.avaya.clientplatform.impl.VideoSurfaceImpl
 import com.avaya.clientplatform.api.ClientPlatform
@@ -66,13 +65,6 @@ class LlamadaAudio : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
         escondercontroles()
         //Iniciamos audioManager de Android
         volumeControlStream = AudioManager.STREAM_VOICE_CALL
-        //Listener Boton Colgar
-        end_call.setOnClickListener {
-            colgar()
-            finish()
-        }
-        //
-
     }
 
 
@@ -307,13 +299,6 @@ class LlamadaAudio : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
         )
     }
 
-
-    override fun onRestart() {
-        Log.d("API", "Recreando onResume")
-        super.onRestart()
-
-    }
-
     //Listeners
 
     override fun onSessionRemoteAlerting(session: Session, hasEarlyMedia: Boolean) {
@@ -464,8 +449,9 @@ class LlamadaAudio : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
 
 
     override fun onBackPressed() {
-        //nada
-        //super.onBackPressed()
+        super.onBackPressed()
+
+
     }
 
 
@@ -494,7 +480,17 @@ class LlamadaAudio : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
                     mUser!!.acceptAnyCertificate(true)
                     // asignamos al objeto mPlataform la interfaz device
                     mPlatform!!.device as DeviceImpl
+                    end_call.setOnClickListener {
+                        mDevice!!.localVideoView = null
+                        mDevice!!.remoteVideoView = null
+                        mSession!!.unregisterListener(this)
+                        mUser!!.unregisterListener(this)
+                        mSession!!.end()
+                        finish()
+                    }
+
                     Log.d("SDK", mPlatform!!.getDevice().toString())
+
                     when (mSession) {
                         null -> //Si no tenemos session podemos llamar
                             when {

@@ -20,7 +20,6 @@ import com.avaya.clientplatform.impl.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
-import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 import com.avaya.clientplatform.impl.VideoSurfaceImpl
 import com.avaya.clientplatform.api.ClientPlatform
@@ -55,13 +54,6 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
         return null
     }
 
-    override fun onResume() {
-        //
-        super.onResume()
-        Log.d("API", "Prueba")
-
-    }
-
     //Creacion Aplicacion
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,61 +63,8 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         //Escondemos los botones
         escondercontroles()
-
-        //Abrimos el Preference Manager
-        var myPreferences = "myPrefs"
-        var sharedPreferences = getSharedPreferences(myPreferences, Context.MODE_PRIVATE)
-        //Obtenemos el Token
-        var token = sharedPreferences.getString("token", "")
-        try {
-            //Creamos objetos con las interfaces
-            mPlatform = ClientPlatformManager.getClientPlatform(this.applicationContext)
-            //Creamos Objeto con la interface Ususario
-            mUser = mPlatform!!.user as UserImpl?
-            Log.d("SDK", token)
-            //Asignamos el Token al Usuario para crear la sesion
-            val tokenAccepted = mUser!!.setSessionAuthorizationToken(token)
-            when {
-            //Si el token es acpetado
-                tokenAccepted -> {
-                    //registramos el Listener
-                    mUser!!.registerListener(this)
-                    //El SDK aceptará cualquier certificado
-                    mUser!!.acceptAnyCertificate(true)
-                    // asignamos al objeto mPlataform la interfaz device
-                    mPlatform!!.device as DeviceImpl
-                    Log.d("SDK", mPlatform!!.getDevice().toString())
-                    when (mSession) {
-                        null -> //Si no tenemos session podemos llamar
-                            when {
-                                mUser!!.isServiceAvailable -> {
-                                    Log.d("SDK", "Llamar")
-                                    llamada()
-                                }
-                                else -> {
-                                    Log.d("SDK", "Servicio No disponible")
-                                    colgar()
-                                }
-                            }
-                        else -> Log.d("SDK", "no se puede llamar")
-                    }
-                }
-                else -> Log.d("SDK", "Token Invalida")
-            }
-        } catch (e: Exception) {
-            Log.d("SDK", "Error al resumir $e")
-        }
-
-
         //Iniciamos audioManager de Android
         volumeControlStream = AudioManager.STREAM_VOICE_CALL
-        //Listener Boton Colgar
-        end_call.setOnClickListener {
-            colgar()
-            finish()
-        }
-        //
-
     }
 
 
@@ -133,11 +72,9 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
     private fun escondercontroles() {
         setButtonsVisibility(View.INVISIBLE)
     }
-
     private fun mostrarcontroles() {
         setButtonsVisibility(View.VISIBLE)
     }
-
     private fun setButtonsVisibility(visibility: Int) {
         setVisibility(findViewById(R.id.btnMuteAudio), visibility)
         setVisibility(findViewById(R.id.btnEnableVideo), visibility)
@@ -222,8 +159,8 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
             //Preferencias de la llamada
             mSession.enableAudio(true)
             mSession.enableVideo(true)
-            mSession.muteAudio(false)
-            mSession.muteVideo(false)
+            mSession.muteAudio(true)
+            mSession.muteVideo(true)
             //Asignamos el UserToUser to Info
             mSession.contextId = "$gpslat,$gpslong"
             //Asiganmos el numero
@@ -362,13 +299,11 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
         )
     }
 
-
     //Listeners
 
     override fun onSessionRemoteAlerting(session: Session, hasEarlyMedia: Boolean) {
         Log.d("SDK", "Timbrando")
     }
-
     override fun onSessionRemoteAddressChanged(p0: Session?, p1: String?, p2: String?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -477,11 +412,9 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
     override fun onConnRetry(user: User) {
         toast("Reintentando conectar")
     }
-
     override fun onConnectionInProgress(arg0: User) {
         Log.d("SDK", "Conexion en Progreso")
     }
-
     override fun onConnLost(user: User) {
         toast("Se ha perdido conexion con el servidor, intente remarcar")
         colgar()
@@ -501,7 +434,6 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
     override fun onCriticalError(p0: User?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
     override fun onDestroy() {
         super.onDestroy()
         mPlatform = null
@@ -516,23 +448,68 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
     }
 
 
-}
+    override fun onBackPressed() {
+        super.onBackPressed()
 
 
-object ClientPlatformManager {
-
-    var sClientPlatform: ClientPlatform? = null
-
-    @Synchronized
-    fun getClientPlatform(context: Context): ClientPlatform? {
-
-        if (sClientPlatform != null) {
-            return sClientPlatform
-        }
-
-        sClientPlatform = ClientPlatformFactory.getClientPlatformInterface(context)
-
-        return sClientPlatform
     }
 
+
+    override fun onResume() {
+
+        super.onResume()
+        //Abrimos el Preference Manager
+        var myPreferences = "myPrefs"
+        var sharedPreferences = getSharedPreferences(myPreferences, Context.MODE_PRIVATE)
+        //Obtenemos el Token
+        var token = sharedPreferences.getString("token", "")
+        try {
+            //Creamos objetos con las interfaces
+            mPlatform = ClientPlatformManager.getClientPlatform(this.applicationContext)
+            //Creamos Objeto con la interface Ususario
+            mUser = mPlatform!!.user as UserImpl?
+            Log.d("SDK", token)
+            //Asignamos el Token al Usuario para crear la sesion
+            val tokenAccepted = mUser!!.setSessionAuthorizationToken(token)
+            when {
+            //Si el token es acpetado
+                tokenAccepted -> {
+                    //registramos el Listener
+                    mUser!!.registerListener(this)
+                    //El SDK aceptará cualquier certificado
+                    mUser!!.acceptAnyCertificate(true)
+                    // asignamos al objeto mPlataform la interfaz device
+                    mPlatform!!.device as DeviceImpl
+                    end_call.setOnClickListener {
+                        mDevice!!.localVideoView = null
+                        mDevice!!.remoteVideoView = null
+                        mSession!!.unregisterListener(this)
+                        mUser!!.unregisterListener(this)
+                        mSession!!.end()
+                        finish()
+                    }
+
+                    Log.d("SDK", mPlatform!!.getDevice().toString())
+
+                    when (mSession) {
+                        null -> //Si no tenemos session podemos llamar
+                            when {
+                                mUser!!.isServiceAvailable -> {
+                                    Log.d("SDK", "Llamar")
+                                    llamada()
+                                }
+                                else -> {
+                                    Log.d("SDK", "Servicio No disponible")
+                                    colgar()
+                                }
+                            }
+                        else -> Log.d("SDK", "no se puede llamar")
+                    }
+                }
+                else -> Log.d("SDK", "Token Invalida")
+            }
+        } catch (e: Exception) {
+            Log.d("SDK", "Error al resumir $e")
+        }
+    }
 }

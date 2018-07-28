@@ -65,13 +65,6 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
         escondercontroles()
         //Iniciamos audioManager de Android
         volumeControlStream = AudioManager.STREAM_VOICE_CALL
-        //Listener Boton Colgar
-        end_call.setOnClickListener {
-            colgar()
-            finish()
-        }
-        //
-
     }
 
 
@@ -487,7 +480,17 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
                     mUser!!.acceptAnyCertificate(true)
                     // asignamos al objeto mPlataform la interfaz device
                     mPlatform!!.device as DeviceImpl
+                    end_call.setOnClickListener {
+                        mDevice!!.localVideoView = null
+                        mDevice!!.remoteVideoView = null
+                        mSession!!.unregisterListener(this)
+                        mUser!!.unregisterListener(this)
+                        mSession!!.end()
+                        finish()
+                    }
+
                     Log.d("SDK", mPlatform!!.getDevice().toString())
+
                     when (mSession) {
                         null -> //Si no tenemos session podemos llamar
                             when {
