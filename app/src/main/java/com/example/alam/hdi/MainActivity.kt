@@ -328,22 +328,6 @@ class Login {
 }
 
 
-object ClientPlatformManager {
 
-    var sClientPlatform: ClientPlatform? = null
-
-    @Synchronized
-    fun getClientPlatform(context: Context): ClientPlatform? {
-
-        if (sClientPlatform != null) {
-            return sClientPlatform
-        }
-
-        sClientPlatform = ClientPlatformFactory.getClientPlatformInterface(context)
-
-        return sClientPlatform
-    }
-
-}
 
 

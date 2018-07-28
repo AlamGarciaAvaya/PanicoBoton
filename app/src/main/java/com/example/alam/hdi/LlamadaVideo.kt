@@ -55,6 +55,13 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
         return null
     }
 
+    override fun onResume() {
+        //
+        super.onResume()
+        Log.d("API", "Prueba")
+
+    }
+
     //Creacion Aplicacion
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -356,12 +363,6 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
     }
 
 
-    override fun onRestart() {
-        Log.d("API", "Recreando onResume")
-        super.onRestart()
-
-    }
-
     //Listeners
 
     override fun onSessionRemoteAlerting(session: Session, hasEarlyMedia: Boolean) {
@@ -517,3 +518,21 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
 
 }
 
+
+object ClientPlatformManager {
+
+    var sClientPlatform: ClientPlatform? = null
+
+    @Synchronized
+    fun getClientPlatform(context: Context): ClientPlatform? {
+
+        if (sClientPlatform != null) {
+            return sClientPlatform
+        }
+
+        sClientPlatform = ClientPlatformFactory.getClientPlatformInterface(context)
+
+        return sClientPlatform
+    }
+
+}

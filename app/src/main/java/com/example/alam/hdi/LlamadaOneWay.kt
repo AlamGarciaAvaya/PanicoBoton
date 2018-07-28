@@ -306,13 +306,6 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
         )
     }
 
-
-    override fun onRestart() {
-        Log.d("API", "Recreando onResume")
-        super.onRestart()
-
-    }
-
     //Listeners
 
     override fun onSessionRemoteAlerting(session: Session, hasEarlyMedia: Boolean) {
@@ -463,8 +456,9 @@ class LlamadaOneWay : AppCompatActivity(), HostnameVerifier, X509TrustManager, U
 
 
     override fun onBackPressed() {
-        //nada
-        //super.onBackPressed()
+        super.onBackPressed()
+   
+
     }
 
 
