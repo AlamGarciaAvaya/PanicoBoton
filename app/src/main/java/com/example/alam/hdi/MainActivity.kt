@@ -80,11 +80,8 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED -> return
             else -> {
                 actualizargps()
+                mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
 
-                var mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
-                runOnUiThread {
-                    textView8.text = "Precision: " + mLocation.accuracy.toString() + " Metros"
-                }
                 when (mLocation) {
                     null -> actualizargps()
                 }
