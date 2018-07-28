@@ -159,8 +159,8 @@ class LlamadaVideo : AppCompatActivity(), HostnameVerifier, X509TrustManager, Us
             //Preferencias de la llamada
             mSession.enableAudio(true)
             mSession.enableVideo(true)
-            mSession.muteAudio(true)
-            mSession.muteVideo(true)
+            mSession.muteAudio(false)
+            mSession.muteVideo(false)
             //Asignamos el UserToUser to Info
             mSession.contextId = "$gpslat,$gpslong"
             //Asiganmos el numero

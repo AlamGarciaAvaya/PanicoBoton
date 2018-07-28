@@ -3,7 +3,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
-
+def date = new Date()
+def formattedDate = date.format('yyyy-MM-dd_HH-mm-ss')
 android {
     compileSdkVersion 27
     defaultConfig {
@@ -13,6 +14,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        setProperty("archivesBaseName", "HDI_" + formattedDate )
+
     }
     buildTypes {
         release {

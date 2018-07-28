@@ -37,6 +37,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
@@ -68,7 +69,7 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
 
     private var mLocationRequest: LocationRequest? = null
     private val listener: com.google.android.gms.location.LocationListener? = null
-    private val UPDATE_INTERVAL = (2 * 1000).toLong()
+    private val UPDATE_INTERVAL = (1000).toLong()
     private val FASTEST_INTERVAL: Long = 2000
 
 
@@ -80,8 +81,10 @@ open class MainActivity : AppCompatActivity(), HostnameVerifier, X509TrustManage
             else -> {
                 actualizargps()
 
-                mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
-
+                var mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
+                runOnUiThread {
+                    textView8.text = "Precision: " + mLocation.accuracy.toString() + " Metros"
+                }
                 when (mLocation) {
                     null -> actualizargps()
                 }
