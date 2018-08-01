@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 def date = new Date()
-def formattedDate = date.format('yyyy-MM-dd_HH-mm-ss')
+def formattedDate = date.format('yyyyMMdd_HHmm')
 android {
     compileSdkVersion 27
     defaultConfig {
