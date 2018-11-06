@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.alam.botonpanico">
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -14,7 +15,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,9 +23,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.example.alam.botonpanico.MainActivity"
-            android:label="@string/app_name"
+            android:name=".MainActivity"
             android:clearTaskOnLaunch="true"
+            android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,23 +34,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.alam.botonpanico.AjustesActivity"
+            android:name=".AjustesActivity"
             android:clearTaskOnLaunch="true" />
         <activity
-            android:name="com.example.alam.botonpanico.LlamadaVideo"
-            android:clearTaskOnLaunch="true">
-
-        </activity>
+            android:name=".LlamadaVideo"
+            android:clearTaskOnLaunch="true"></activity>
         <activity
-            android:name="com.example.alam.botonpanico.LlamadaOneWay"
-            android:clearTaskOnLaunch="true">
-
-        </activity>
+            android:name=".QR"
+            android:clearTaskOnLaunch="true" />
         <activity
-            android:name="com.example.alam.botonpanico.LlamadaAudio"
-            android:clearTaskOnLaunch="true">
-
-        </activity>
+            android:name=".GrabadoraVideo"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_grabadora_video" />
     </application>
 
 </manifest>

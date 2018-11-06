@@ -14,11 +14,21 @@
     <string name="label2_settings">Usuario</string>
     <string name="label3_settings">Host</string>
     <string name="label4_settings">Puerto</string>
-    <string name="label5_settings">Número</string>
+    <string name="label5_settings">Número AMV</string>
+    <string name="label13_settings">Número QR</string>
     <string name="label6_settings">Mostrar Estadisticas</string>
     <string name="label7_settings">Guardar Ajustes</string>
     <string name="label8_settings">Resolucion Cámara</string>
     <string name="label9_settings">Dual Video </string>
     <string name="label10_settings">One-Way Video </string>
     <string name="label11_settings">Audio </string>
+    <string name="record">Record</string>
+    <string name="stop">Stop</string>
+    <string name="description_info">Info</string>
+    <string name="permission_request">This sample needs permission for camera and audio recording.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+
+    <string name="title_activity_grabadora_video">GrabadoraVideo</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
